@@ -30,9 +30,16 @@ class Program
         bool debug = true;
         bool tasAUTH = true;
 
-        int error = p.GetPermission(customerID, productID, debug, tasAUTH);
-        Console.WriteLine("Returned Error: " + error);
-        if (error == 0)
+        //Perform user authentication using TAS authorization
+        int error_machine_auth = p.GetPermission(customerID, productID, debug, tasAUTH);
+        Console.WriteLine("Returned Error: " + error_machine_auth);
+
+        //If you prefer to use the username embedded into the license, set TASauth to False
+        tasAUTH = false;
+        int error_username_auth = p.GetPermission(customerID, productID, debug, tasAUTH);
+        Console.WriteLine("Returned Error: " + error_username_auth);
+
+        if (error_machine_auth == 0 && error_username_auth == 0)
             Console.WriteLine("Access granted");
         else
             Console.WriteLine("Access denied");
