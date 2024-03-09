@@ -78,7 +78,7 @@ class Program
 To use the UserPermission namespace, you must add the TAS_DotNet.dll file located at C:\ProgramData\TradingAppStore\x64   (or x86) as a reference to your project.
 
 ## DLL Inputs
-The DLL must have 4 input values:
+The DLL must have 2 input values:
 * string productID :    SKU of the product to be checked.
 * bool debug :          set to True if you are testing to use Debug licenses distributed by the vendor portal. SET TO FALSE FOR RELEASE OR ELSE ANYONE WILL HAVE ACCESS TO YOUR PRODUCT
 
