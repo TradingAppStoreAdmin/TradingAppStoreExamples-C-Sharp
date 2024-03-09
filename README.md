@@ -17,9 +17,6 @@ Check all that apply to this product.  Your product may fit into more than one L
 ### Subscription Options:
 Choose the type of billing scheme to use. (Such as Lifetime, Annual, Monthly, Free Trial + Monthly, etc)
 
-### Upload Software Here:
-***Skip this step temporarily because you first need to integrate the TAS subscription verification DLL into your custom software by following the directions below.  This will be the final step below before deployment.*
-
 ### Webhook Link:
 If you have a real-time listening application that works with Webhooks, paste the link to it here to be notified when a purchase for this product is made.
 
@@ -61,21 +58,14 @@ class Program
     static void Main()
     {
         UserPermission p = new UserPermission();
-        string customerID = "C_Sharp_App-“ + “INSERT_CUSTOMER_ID";
         string productID =  "INSERT_PRODUCT_SKU";
         bool debug = true;
-        bool tasAUTH = true;
 
         //Perform user authentication using TAS authorization
-        int error_machine_auth = p.GetPermission(customerID, productID, debug, tasAUTH);
+        int error_machine_auth = p.GetMachineAuthorization(productID, debug);
         Console.WriteLine("Returned Error: " + error_machine_auth);
 
-        //If you prefer to use the username embedded into the license, set TASauth to False
-        tasAUTH = false;
-        int error_username_auth = p.GetPermission(customerID, productID, debug, tasAUTH);
-        Console.WriteLine("Returned Error: " + error_username_auth);
-
-        if (error_machine_auth == 0 && error_username_auth == 0)
+        if (error_machine_auth == 0)
             Console.WriteLine("Access granted");
         else
             Console.WriteLine("Access denied");
@@ -86,10 +76,8 @@ To use the UserPermission namespace, you must add the TAS_DotNet.dll file locate
 
 ## DLL Inputs
 The DLL must have 4 input values:
-* string customerID :   username of the user
 * string productID :    SKU of the product to be checked.
 * bool debug :          set to True if you are testing to use Debug licenses distributed by the vendor portal. SET TO FALSE FOR RELEASE OR ELSE ANYONE WILL HAVE ACCESS TO YOUR PRODUCT
-* bool TASauth :        Enable this to use our system for user authorization via hardware identifiers. Otherwise, you can use another system like Username / Password
 
 ## DLL Return Values
 The DLL will return various error values based on numerous factors. It is up to your application how to handle them.
@@ -108,11 +96,11 @@ The DLL will return various error values based on numerous factors. It is up to 
 ## Finishing Up
 Go back to the Vendor Portal to complete your product setup.
 
-### Sales Information - Set Price:
-This is the price per period for the subscription term of the product.  Revenue splits are explained in the Vendor Policy (https://tradingapp.store/pages/vendor-policy).
-
 ### Upload Software Here:
 Once your product is successfully integrated into our permissions system, take the product out of debug mode (see bool debug above), and export your project.  If you have accompanying files, workspaces, symbol lists, etc, zip everything into one file, and then upload it here.  This is what will be distributed to end-users at the time of purchase or free trial.
+
+### Sales Information - Set Price:
+This is the price per period for the subscription term of the product.  Revenue splits are explained in the Vendor Policy (https://tradingapp.store/pages/vendor-policy).
 
 ### Send for approval:
 Click here to send this listing for approval by TAS site moderators.  You will be notified by email upon acceptance or rejection.
