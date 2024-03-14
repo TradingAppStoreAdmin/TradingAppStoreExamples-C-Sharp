@@ -85,6 +85,7 @@ class Program
             return; // VERY IMPORTANT: Be sure to handle the case for when a user doesn't have access. In this example, we simply return to terminate the program.
         }
     }
+
     // Verifies our DLLs have not been tampered with.
     // We offer a webhook that takes in the target DLL as an attachment and
     // confirms that it hasn't been modified, further protecting your software.
