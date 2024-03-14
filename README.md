@@ -53,25 +53,55 @@ You may download the installer for TradingAppStore from the vendor portal whenev
 ## Implementation
 Below is a C# implementation that calls the UserHasPermission function of the TradingAppStore DLL:
 ```C#
-using System;
-using static UserPermission;
-
+using System.Net;
+using System.Text;
 class Program
 {
-    static void Main()
+    public static void Main(string[] args)
     {
+        string programDataFolder = "C:\\ProgramData\\TradingAppStore\\" + (Environment.Is64BitProcess ? "x64" : "x86");
+        string tasDotNetDll = Path.Combine(programDataFolder, "TAS_DotNet.dll");
+        string tasLicenseDll = Path.Combine(programDataFolder, "TASlicense.dll");
+        if (!VerifyDll(tasDotNetDll) || !VerifyDll(tasLicenseDll))
+        {
+            return; // VERY IMPORTANT: Handle the case for if either verification fails. Do not use the library code! In this example, we simply return to terminate the program.
+        }
+
         UserPermission p = new UserPermission();
-        string productID =  "INSERT_PRODUCT_SKU";
-        bool debug = true;
+        string productID = "INSERT_PRODUCT_SKU";
+        bool debug = true; // VERY IMPORTANT: Only set this to true during testing. Actual implementation will have debug set to false.
 
         //Perform user authentication using TAS authorization
         int error_machine_auth = p.GetMachineAuthorization(productID, debug);
         Console.WriteLine("Returned Error: " + error_machine_auth);
 
         if (error_machine_auth == 0)
+        {
             Console.WriteLine("Access granted");
+        }
         else
+        {
             Console.WriteLine("Access denied");
+            return; // VERY IMPORTANT: Be sure to handle the case for when a user doesn't have access. In this example, we simply return to terminate the program.
+        }
+    }
+
+    // Verifies our DLLs have not been tampered with.
+    // We offer a webhook that takes in the target DLL as an attachment and
+    // confirms that it hasn't been modified, further protecting your software.
+    private static bool VerifyDll(string dllPath)
+    {
+        using (WebClient client = new WebClient())
+        {
+            byte[] response = client.UploadFile("https://tradingstoreapi.ngrok.app/verifyDLL", dllPath);
+            string responseStr = Encoding.ASCII.GetString(response, 0, response.Length);
+            bool valid = responseStr == "ACCEPT";
+            if(!valid)
+            {
+                Console.WriteLine("ERROR: Dll verification failed with response " + responseStr);
+            }
+            return valid;
+        }
     }
 }
 ```
