@@ -64,7 +64,7 @@ class Program
         string tasLicenseDll = Path.Combine(programDataFolder, "TASlicense.dll");
         if (!VerifyDll(tasDotNetDll) || !VerifyDll(tasLicenseDll))
         {
-            return; // VERY IMPORTANT: Return here if either verification fails. Do not use the library code!
+            return; // VERY IMPORTANT: Handle the case for if either verification fails. Do not use the library code! In this example, we simply return to terminate the program.
         }
 
         UserPermission p = new UserPermission();
@@ -82,7 +82,7 @@ class Program
         else
         {
             Console.WriteLine("Access denied");
-            return; // VERY IMPORTANT: Be sure to return here if we find that user doesn't have auth
+            return; // VERY IMPORTANT: Be sure to handle the case for when a user doesn't have access. In this example, we simply return to terminate the program.
         }
     }
     // returns response of dll verification from our TAS server
