@@ -118,7 +118,8 @@ class Program
     }
 }
 ```
-To use the UserPermission namespace, you must add the TAS_DotNet.dll file located at C:\ProgramData\TradingAppStore\x64   (or x86) as a reference to your project.
+To use the UserPermission namespace, you must add the TAS_DotNet.dll file located at C:\ProgramData\TradingAppStore\x64   (or x86, depending on your chosen architecture) as a reference to your project.
+
 Similarly, to use the Utils namespace, add The Utils_DotNet file located at C:\ProgramData\TradingAppStore\x64   (or x86) as a reference to your project.
 
 ## DLL Inputs
