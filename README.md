@@ -59,8 +59,7 @@ class Program
 {
     public static void Main(string[] args)
     {
-        Program program = new Program();
-        if (!program.VerifyDlls())
+        if (!VerifyDlls())
         {
             return; // VERY IMPORTANT: Handle the case for if verification fails. Do not use the library code! In this example, we simply return to terminate the program.
         }
@@ -85,7 +84,7 @@ class Program
     }
 
     // Verifies our DLLs have not been tampered with.
-    private bool VerifyDlls()
+    private static bool VerifyDlls()
     {
         // This gets a one-time-use magic number from our utility dll
         Utils utils = new Utils();
@@ -116,6 +115,7 @@ class Program
             }
         }
     }
+
 }
 ```
 To use the UserPermission namespace, you must add the TAS_DotNet.dll file located at C:\ProgramData\TradingAppStore\x64   (or x86) as a reference to your project.
