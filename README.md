@@ -53,18 +53,16 @@ You may download the installer for TradingAppStore from the vendor portal whenev
 ## Implementation
 Below is a C# implementation that calls the UserHasPermission function of the TradingAppStore DLL:
 ```C#
-using System.Net;
 using System.Text;
+using System.Text.Json;
 class Program
 {
     public static void Main(string[] args)
     {
-        string programDataFolder = "C:\\ProgramData\\TradingAppStore\\" + (Environment.Is64BitProcess ? "x64" : "x86");
-        string tasDotNetDll = Path.Combine(programDataFolder, "TAS_DotNet.dll");
-        string tasLicenseDll = Path.Combine(programDataFolder, "TASlicense.dll");
-        if (!VerifyDll(tasDotNetDll) || !VerifyDll(tasLicenseDll))
+        Program program = new Program();
+        if (!program.VerifyDlls())
         {
-            return; // VERY IMPORTANT: Handle the case for if either verification fails. Do not use the library code! In this example, we simply return to terminate the program.
+            return; // VERY IMPORTANT: Handle the case for if verification fails. Do not use the library code! In this example, we simply return to terminate the program.
         }
 
         UserPermission p = new UserPermission();
@@ -87,20 +85,35 @@ class Program
     }
 
     // Verifies our DLLs have not been tampered with.
-    // We offer a webhook that takes in the target DLL as an attachment and
-    // confirms that it hasn't been modified, further protecting your software.
-    private static bool VerifyDll(string dllPath)
+    private bool VerifyDlls()
     {
-        using (WebClient client = new WebClient())
+        // This gets a one-time-use magic number from our utility dll
+        Utils utils = new Utils();
+        string magicNumber = utils.ReceiveMagicNumber();
+        
+        // Now, let's send the magic number to our server for verificaiton
+        var jsonString = JsonSerializer.Serialize(new { magic_number = magicNumber });
+        using (var client = new HttpClient())
         {
-            byte[] response = client.UploadFile("https://tradingstoreapi.ngrok.app/verifyDLL", dllPath);
-            string responseStr = Encoding.ASCII.GetString(response, 0, response.Length);
-            bool valid = responseStr == "ACCEPT";
-            if(!valid)
+            var content = new StringContent(jsonString, Encoding.UTF8, "application/json");
+            var response = client.PostAsync("https://tradingstoreapi.ngrok.app/verifyDLL", content).Result;
+
+            // Handle server respoonse accordingly
+            if (response.StatusCode == System.Net.HttpStatusCode.OK)
             {
-                Console.WriteLine("ERROR: Dll verification failed with response " + responseStr);
+                Console.WriteLine("DLL accepted");
+                return true;
             }
-            return valid;
+            else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                Console.WriteLine("DLL has been tampered with.");
+                return false;
+            }
+            else
+            {
+                Console.WriteLine($"Error: {response.StatusCode}");
+                return false;
+            }
         }
     }
 }
