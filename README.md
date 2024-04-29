@@ -56,21 +56,24 @@ Below is a C# implementation that calls the UserHasPermission function of the Tr
 ```C#
 using System.Text;
 using System.Text.Json;
+using System.Reflection;
+using System.Runtime.InteropServices;
 class Program
 {
+
     public static void Main(string[] args)
     {
+
         if (!VerifyDlls())
         {
             return; // VERY IMPORTANT: Handle the case for if verification fails. Do not use the library code! In this example, we simply return to terminate the program.
         }
 
-        UserPermission p = new UserPermission();
         string productID = "INSERT_PRODUCT_SKU";
         bool debug = true; // VERY IMPORTANT: Only set this to true during testing. Actual implementation will have debug set to false.
 
         //Perform user authentication using TAS authorization
-        int error_machine_auth = p.GetMachineAuthorization(productID, debug);
+        int error_machine_auth = UseMachineAuthorization(productID, debug);
         Console.WriteLine("Returned Error: " + error_machine_auth);
 
         if (error_machine_auth == 0)
@@ -82,15 +85,20 @@ class Program
             Console.WriteLine("Access denied");
             return; // VERY IMPORTANT: Be sure to handle the case for when a user doesn't have access. In this example, we simply return to terminate the program.
         }
+
     }
+
+    // replace x64 with x86 if you are using 32 bit
+    [DllImport("C:\\ProgramData\\TradingAppStore\\x64\\TasLicense.dll")]
+    private static extern int UseMachineAuthorization(string productId, bool debug);
 
     // Verifies our DLLs have not been tampered with.
     private static bool VerifyDlls()
     {
         // This gets a one-time-use magic number from our utility dll
-        Utils utils = new Utils();
-        string magicNumber = utils.ReceiveMagicNumber();
-        
+        // change x64 to x86 if you are using 32 bit
+        string magicNumber = (string)Assembly.LoadFrom(@"C:\ProgramData\TradingAppStore\x64\Utils_DotNet.dll").GetType("Utils").GetMethod("ReceiveMagicNumber", BindingFlags.Static | BindingFlags.Public, null, CallingConventions.Any, Type.EmptyTypes, null).Invoke(null, null).ToString();
+
         // Now, let's send the magic number to our server for verificaiton
         var jsonString = JsonSerializer.Serialize(new { magic_number = magicNumber });
         using (var client = new HttpClient())
