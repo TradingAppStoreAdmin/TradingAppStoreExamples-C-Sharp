@@ -97,7 +97,7 @@ class Program
     {
         // This gets a one-time-use magic number from our utility dll
         // change x64 to x86 if you are using 32 bit
-        string magicNumber = (string)Assembly.LoadFrom(@"C:\ProgramData\TradingAppStore\x64\Utils_DotNet.dll").GetType("Utils").GetMethod("ReceiveMagicNumber", BindingFlags.Static | BindingFlags.Public, null, CallingConventions.Any, Type.EmptyTypes, null).Invoke(null, null).ToString();
+        string magicNumber = (string)Assembly.LoadFrom(@"C:\ProgramData\TradingAppStore\x64\Utils_DotNet.dll").GetType("Utils").GetMethod("ReceiveMagicNumber").Invoke(null, null).ToString();
 
         // Now, let's send the magic number to our server for verificaiton
         var jsonString = JsonSerializer.Serialize(new { magic_number = magicNumber });
