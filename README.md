@@ -89,7 +89,7 @@ class Program
     }
 
     // replace x64 with x86 if you are using 32 bit
-    [DllImport("C:\\ProgramData\\TradingAppStore\\x64\\TasLicense.dll")]
+    [DllImport("C:\\ProgramData\\TradingAppStore\\x64\\TASlicense.dll")]
     private static extern int UseMachineAuthorization(string productId, bool debug);
 
     // Verifies our DLLs have not been tampered with.
