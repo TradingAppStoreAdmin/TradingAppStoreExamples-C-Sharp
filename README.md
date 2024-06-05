@@ -52,7 +52,7 @@ The TradingAppStore DLL also offers a hardware authorization option that only al
 You may download the installer for TradingAppStore from the vendor portal whenever you are in the process of creating a listing. All licenses created from the vendor portal are tagged with a “Debug” flag, so they will not have any functionality in release mode. Thus, BE SURE TO CHANGE THE DEBUG FLAG TO FALSE AFTER COMPLETION OF TESTING PHASES.
 
 ## Implementation
-Below is a C# implementation that calls the UserHasPermission function of the TradingAppStore DLL:
+Below is a C# implementation that calls the UserHasPermission function of the TradingAppStore DLL. Please review it carefully.
 ```C#
 using System.Text;
 using System.Text.Json;
@@ -91,13 +91,21 @@ class Program
     // replace x64 with x86 if you are using 32 bit
     [DllImport("C:\\ProgramData\\TradingAppStore\\x64\\TASlicense.dll")]
     private static extern int UseMachineAuthorization(string productId, bool debug);
+    
+    // replace x64 with x86 if you are using 32 bit
+    [DllImport("C:\\ProgramData\\TradingAppStore\\x64\\Utils.dll")]
+    private static extern string GetMagicNumber();
 
     // Verifies our DLLs have not been tampered with.
     private static bool VerifyDlls()
     {
         // This gets a one-time-use magic number from our utility dll
-        // change x64 to x86 if you are using 32 bit
-        string magicNumber = Assembly.LoadFrom(@"C:\ProgramData\TradingAppStore\x64\Utils_DotNet.dll").GetType("Utils").GetMethod("ReceiveMagicNumber").Invoke(null, null).ToString();
+        GetMagicNumber();
+        string magicNumber = "";
+        using (StreamReader s = new StreamReader("C:\\ProgramData\\TradingAppStore\\temp\\magic.txt"))
+        {
+            magicNumber = s.ReadToEnd();
+        }
 
         // Now, let's send the magic number to our server for verificaiton
         var jsonString = JsonSerializer.Serialize(new { magic_number = magicNumber });
